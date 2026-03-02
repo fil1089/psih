@@ -81,7 +81,7 @@ const EMOTIONS = {
 };
 
 const CATEGORY_ORDER = ['anger', 'shame', 'sadness', 'fear', 'joy'];
-const STORAGE_KEY = 'emotion_diary_entries_v2';
+const API_URL = '/api/entries';
 const MIN_EMOTIONS = 4;
 
 // Подсказки «Почему я счастлив» — большой список
@@ -180,14 +180,25 @@ const state = {
 
 // ============ УТИЛИТЫ ============
 
-function loadEntries() {
+async function loadEntries() {
     try {
-        state.entries = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    } catch { state.entries = []; }
-}
-
-function saveEntries() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.entries));
+        const res = await fetch(API_URL);
+        if (!res.ok) throw new Error('Failed to load');
+        const rows = await res.json();
+        // Нормализация snake_case → camelCase
+        state.entries = rows.map(r => ({
+            id: r.id,
+            date: r.date,
+            dayKey: r.day_key,
+            timeOfDay: r.time_of_day,
+            emotions: r.emotions || [],
+            happyText: r.happy_text || '',
+            notes: r.notes || ''
+        }));
+    } catch (err) {
+        console.error('Load error:', err);
+        state.entries = [];
+    }
 }
 
 function generateId() {
@@ -493,9 +504,12 @@ function updateSaveBtn() {
 
 // ============ СОХРАНЕНИЕ ============
 
-function saveEntry() {
+async function saveEntry() {
     const btn = document.getElementById('save-entry');
     if (btn.disabled) return;
+
+    btn.disabled = true;
+    btn.textContent = 'Сохраняю...';
 
     const happyText = state.timeOfDay === 'morning'
         ? document.getElementById('happy-text').value.trim()
@@ -512,24 +526,41 @@ function saveEntry() {
         notes: notesText
     };
 
-    state.entries.unshift(entry);
-    saveEntries();
+    try {
+        const res = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(entry)
+        });
 
-    const timeLabel = state.timeOfDay === 'morning' ? 'Утренняя' : 'Вечерняя';
-    showToast(`✨ ${timeLabel} запись сохранена!`);
+        if (!res.ok) throw new Error('Save failed');
 
-    // Сброс
-    state.selectedEmotions = [];
-    document.getElementById('happy-text').value = '';
-    document.getElementById('notes-text').value = '';
-    renderAccordion();
-    updateSelectionCounter();
-    updateSaveBtn();
-    updateTodayStatus();
+        state.entries.unshift(entry);
 
-    // Если утро записано, переключить на вечер
-    if (state.timeOfDay === 'morning') {
-        switchTimeOfDay('evening');
+        const timeLabel = state.timeOfDay === 'morning' ? 'Утренняя' : 'Вечерняя';
+        showToast(`✨ ${timeLabel} запись сохранена!`);
+
+        // Сброс
+        state.selectedEmotions = [];
+        document.getElementById('happy-text').value = '';
+        document.getElementById('notes-text').value = '';
+        renderAccordion();
+        updateSelectionCounter();
+        updateSaveBtn();
+        updateTodayStatus();
+
+        // Если утро записано, переключить на вечер
+        if (state.timeOfDay === 'morning') {
+            switchTimeOfDay('evening');
+        }
+    } catch (err) {
+        console.error('Save error:', err);
+        showToast('Ошибка сохранения. Попробуйте ещё раз.', 'error');
+        btn.disabled = false;
+        const saveBtnText = document.getElementById('save-btn-text');
+        saveBtnText.textContent = state.timeOfDay === 'morning'
+            ? 'Сохранить утреннюю запись'
+            : 'Сохранить вечернюю запись';
     }
 }
 
@@ -662,14 +693,21 @@ function closeModal() {
     document.getElementById('entry-modal').style.display = 'none';
 }
 
-function deleteEntry(entryId) {
-    state.entries = state.entries.filter(e => e.id !== entryId);
-    saveEntries();
-    closeModal();
-    renderHistory();
-    renderCalendar();
-    updateTodayStatus();
-    showToast('Запись удалена', 'error');
+async function deleteEntry(entryId) {
+    try {
+        const res = await fetch(`${API_URL}/${entryId}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error('Delete failed');
+
+        state.entries = state.entries.filter(e => e.id !== entryId);
+        closeModal();
+        renderHistory();
+        renderCalendar();
+        updateTodayStatus();
+        showToast('Запись удалена', 'error');
+    } catch (err) {
+        console.error('Delete error:', err);
+        showToast('Ошибка удаления', 'error');
+    }
 }
 
 // ============ СТАТИСТИКА ============
@@ -805,8 +843,8 @@ function renderHappyHistory() {
 
 // ============ ИНИЦИАЛИЗАЦИЯ ============
 
-function init() {
-    loadEntries();
+async function init() {
+    await loadEntries();
     renderGreeting();
     renderHappyPrompts();
     renderAccordion();
