@@ -91,15 +91,9 @@ async function handleAuth() {
 }
 
 function logout() {
-    authToken = null;
     localStorage.removeItem('auth_token');
     localStorage.removeItem('auth_email');
-    closeProfilePopup();
-    document.getElementById('app').style.display = 'none';
-    document.getElementById('auth-screen').style.display = 'flex';
-    document.getElementById('auth-email').value = '';
-    document.getElementById('auth-password').value = '';
-    hideAuthError();
+    window.location.reload();
 }
 
 function toggleProfilePopup() {
