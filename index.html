@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дневник Эмоций — Я чувствую</title>
+    <meta name="description" content="Личный дневник эмоций. Утренние и вечерние записи для отслеживания чувств.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="app">
+        <!-- Навигация -->
+        <nav id="main-nav">
+            <div class="nav-brand">
+                <span class="nav-icon">🌊</span>
+                <span class="nav-title">Дневник Эмоций</span>
+            </div>
+            <div class="nav-links">
+                <button class="nav-btn active" data-screen="checkin" id="nav-checkin">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14" />
+                    </svg>
+                    <span>Запись</span>
+                </button>
+                <button class="nav-btn" data-screen="history" id="nav-history">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 8v4l3 3" />
+                        <circle cx="12" cy="12" r="10" />
+                    </svg>
+                    <span>История</span>
+                </button>
+                <button class="nav-btn" data-screen="stats" id="nav-stats">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 20V10M12 20V4M6 20v-6" />
+                    </svg>
+                    <span>Статистика</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- ======================== -->
+        <!-- ЭКРАН: Чекин -->
+        <!-- ======================== -->
+        <section id="screen-checkin" class="screen active">
+            <div class="screen-content">
+
+                <!-- Приветствие -->
+                <div class="greeting" id="greeting">
+                    <!-- JS -->
+                </div>
+
+                <!-- Переключатель Утро / Вечер -->
+                <div class="time-toggle">
+                    <button class="time-btn active" data-time="morning" id="btn-morning">
+                        <span class="time-icon">☀️</span> Утро
+                    </button>
+                    <button class="time-btn" data-time="evening" id="btn-evening">
+                        <span class="time-icon">🌙</span> Вечер
+                    </button>
+                </div>
+
+                <!-- Статус записей на сегодня -->
+                <div class="today-status" id="today-status">
+                    <!-- JS -->
+                </div>
+
+                <!-- === БЛОК: Почему я счастлив (только утро) === -->
+                <div class="happy-block" id="happy-block">
+                    <div class="block-header">
+                        <h2>
+                            <span class="block-icon">✨</span>
+                            Почему я сегодня счастлив?
+                        </h2>
+                        <p class="block-hint">Напишите хотя бы одну причину — даже самую маленькую</p>
+                    </div>
+
+                    <div class="happy-prompts-header">
+                        <span class="prompts-label">💡 Подсказки для вдохновения</span>
+                        <button class="refresh-prompts-btn" id="refresh-prompts" title="Показать другие подсказки">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M23 4v6h-6" />
+                                <path d="M1 20v-6h6" />
+                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                            </svg>
+                            Другие
+                        </button>
+                    </div>
+                    <div class="happy-prompts" id="happy-prompts">
+                        <!-- JS: подсказки для вдохновения -->
+                    </div>
+
+                    <textarea id="happy-text" class="happy-textarea" rows="5"
+                        placeholder="Я счастлив потому что..."></textarea>
+                </div>
+
+                <!-- === БЛОК: Выбор эмоций === -->
+                <div class="emotions-block">
+                    <div class="block-header">
+                        <h2>
+                            <span class="block-icon">🎭</span>
+                            Что я сейчас чувствую?
+                        </h2>
+                        <p class="block-hint">Выберите минимум <strong>4 эмоции</strong> из таблицы</p>
+                    </div>
+
+                    <!-- Счётчик выбранных -->
+                    <div class="selection-counter" id="selection-counter">
+                        <span class="counter-current" id="counter-current">0</span>
+                        <span class="counter-separator">/</span>
+                        <span class="counter-min">4</span>
+                        <span class="counter-label">выбрано</span>
+                    </div>
+
+                    <!-- Категории эмоций (аккордеон) -->
+                    <div class="emotion-accordion" id="emotion-accordion">
+                        <!-- JS -->
+                    </div>
+                </div>
+
+                <!-- === Дополнительные мысли === -->
+                <div class="notes-block">
+                    <div class="block-header">
+                        <h2>
+                            <span class="block-icon">📝</span>
+                            Дополнительные мысли
+                            <span class="optional-badge">не обязательно</span>
+                        </h2>
+                    </div>
+                    <textarea id="notes-text" class="notes-textarea" rows="3"
+                        placeholder="Что ещё хотите записать..."></textarea>
+                </div>
+
+                <!-- Кнопка сохранения -->
+                <button class="save-btn" id="save-entry" disabled>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                        <polyline points="17,21 17,13 7,13 7,21" />
+                        <polyline points="7,3 7,8 15,8" />
+                    </svg>
+                    <span id="save-btn-text">Сохранить утреннюю запись</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- ======================== -->
+        <!-- ЭКРАН: История -->
+        <!-- ======================== -->
+        <section id="screen-history" class="screen">
+            <div class="screen-content">
+                <h1>История записей</h1>
+
+                <!-- Календарь -->
+                <div class="calendar-section">
+                    <div class="calendar-header">
+                        <button class="cal-nav" id="cal-prev">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M15 18l-6-6 6-6" />
+                            </svg>
+                        </button>
+                        <h3 id="cal-month-year"></h3>
+                        <button class="cal-nav" id="cal-next">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M9 18l6-6-6-6" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="calendar-grid" id="calendar-grid"></div>
+                </div>
+
+                <!-- Список -->
+                <div class="entries-list" id="entries-list"></div>
+
+                <div class="empty-state" id="history-empty" style="display:none">
+                    <div class="empty-icon">📝</div>
+                    <p>Пока нет записей</p>
+                    <p class="empty-sub">Сделайте свою первую утреннюю запись!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================== -->
+        <!-- ЭКРАН: Статистика -->
+        <!-- ======================== -->
+        <section id="screen-stats" class="screen">
+            <div class="screen-content">
+                <h1>Статистика</h1>
+
+                <div class="stats-grid">
+                    <div class="stat-card" id="stat-total">
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Всего записей</div>
+                    </div>
+                    <div class="stat-card" id="stat-streak">
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Дней подряд</div>
+                    </div>
+                    <div class="stat-card" id="stat-this-week">
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">За эту неделю</div>
+                    </div>
+                </div>
+
+                <!-- Распределение -->
+                <div class="chart-section">
+                    <h2>Распределение эмоций</h2>
+                    <div class="emotion-bars" id="emotion-bars"></div>
+                </div>
+
+                <!-- Топ -->
+                <div class="chart-section">
+                    <h2>Топ-5 эмоций</h2>
+                    <div class="top-emotions" id="top-emotions"></div>
+                </div>
+
+                <!-- Счастье -->
+                <div class="chart-section">
+                    <h2>Последние ответы «Почему я счастлив»</h2>
+                    <div class="happy-history" id="happy-history"></div>
+                </div>
+
+                <div class="empty-state" id="stats-empty" style="display:none">
+                    <div class="empty-icon">📊</div>
+                    <p>Недостаточно данных</p>
+                    <p class="empty-sub">Сделайте несколько записей, чтобы увидеть статистику</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Модальное окно просмотра записи -->
+        <div class="modal-overlay" id="entry-modal" style="display:none">
+            <div class="modal-content">
+                <button class="modal-close" id="modal-close">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12" />
+                    </svg>
+                </button>
+                <div id="modal-body"></div>
+                <div class="modal-actions">
+                    <button class="modal-delete" id="modal-delete">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="3,6 5,6 21,6" />
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                        </svg>
+                        Удалить
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast -->
+        <div id="toast-container"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
