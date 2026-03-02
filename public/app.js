@@ -1006,8 +1006,8 @@ function initAuth() {
 async function init() {
     initAuth();
 
-    // Навигация
-    document.querySelectorAll('.nav-btn').forEach(btn => {
+    // Навигация (только кнопки с data-screen, не профиль)
+    document.querySelectorAll('.nav-btn[data-screen]').forEach(btn => {
         btn.addEventListener('click', () => switchScreen(btn.dataset.screen));
     });
 
