@@ -291,6 +291,33 @@ const HAPPY_PROMPTS = [
     'Жизнь продолжается, и это уже хорошо'
 ];
 
+const GRATEFUL_PROMPTS = [
+    'Здоровье моих близких',
+    'Вкусный ужин сегодня',
+    'Интересную задачу на работе или учёбе',
+    'Спокойный вечер дома',
+    'Возможность отдохнуть',
+    'Приятный разговор с другом',
+    'Хорошую погоду или уютный дождь',
+    'Горячий душ',
+    'Мягкую постель',
+    'Любимого питомца',
+    'Музыку, которая подняла мне настроение',
+    'Завершенное за день дело',
+    'То, что я справился со сложной ситуацией',
+    'Новое знание или навык, полученный сегодня',
+    'Случайную улыбку прохожего',
+    'Хорошую книгу или фильм',
+    'Чувство безопасности',
+    'Своё упорство и силу',
+    'Вкусный утренний или вечерний чай',
+    'Что-то красивое, что я сегодня увидел',
+    'Помощь, которую мне оказали',
+    'Свое здоровье и тело',
+    'Доступ к информации и интернету',
+    'Смех и юмор в течение дня'
+];
+
 const PROMPTS_PER_PAGE = 6;
 
 // ============ СОСТОЯНИЕ ============
@@ -300,7 +327,8 @@ const state = {
     selectedEmotions: [],  // [{category, emotion}]
     calendarDate: new Date(),
     entries: [],
-    usedPromptIndices: new Set()  // чтобы не повторять при обновлении
+    usedPromptIndices: new Set(),  // чтобы не повторять при обновлении
+    usedGratefulPromptIndices: new Set()
 };
 
 // ============ УТИЛИТЫ ============
@@ -522,6 +550,47 @@ function renderHappyPrompts() {
         btn.addEventListener('click', () => {
             if (btn.classList.contains('used')) return;
             const textarea = document.getElementById('happy-text');
+            const text = btn.dataset.text;
+            textarea.value += (textarea.value ? '\n' : '') + text;
+            textarea.focus();
+            btn.classList.add('used');
+            updateSaveBtn();
+        });
+    });
+}
+
+// ============ ПОДСКАЗКИ "ЗА ЧТО Я БЛАГОДАРЕН" ============
+
+function getRandomGratefulPrompts() {
+    const available = GRATEFUL_PROMPTS
+        .map((p, i) => ({ text: p, idx: i }))
+        .filter(p => !state.usedGratefulPromptIndices.has(p.idx));
+
+    if (available.length < PROMPTS_PER_PAGE) {
+        state.usedGratefulPromptIndices.clear();
+        return GRATEFUL_PROMPTS
+            .map((p, i) => ({ text: p, idx: i }))
+            .sort(() => Math.random() - 0.5)
+            .slice(0, PROMPTS_PER_PAGE);
+    }
+
+    const selected = available.sort(() => Math.random() - 0.5).slice(0, PROMPTS_PER_PAGE);
+    selected.forEach(p => state.usedGratefulPromptIndices.add(p.idx));
+    return selected;
+}
+
+function renderGratefulPrompts() {
+    const container = document.getElementById('grateful-prompts');
+    const prompts = getRandomGratefulPrompts();
+
+    container.innerHTML = prompts.map(p =>
+        `<button class="happy-prompt" data-text="${escapeHtml(p.text)}">${p.text}</button>`
+    ).join('');
+
+    container.querySelectorAll('.happy-prompt').forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (btn.classList.contains('used')) return;
+            const textarea = document.getElementById('grateful-text');
             const text = btn.dataset.text;
             textarea.value += (textarea.value ? '\n' : '') + text;
             textarea.focus();
@@ -992,6 +1061,7 @@ async function startApp() {
     await loadEntries();
     renderGreeting();
     renderHappyPrompts();
+    renderGratefulPrompts();
     renderAccordion();
     updateSelectionCounter();
     updateTodayStatus();
@@ -1029,7 +1099,9 @@ async function init() {
 
     // Текстовые поля
     document.getElementById('happy-text').addEventListener('input', updateSaveBtn);
+    document.getElementById('grateful-text').addEventListener('input', updateSaveBtn);
     document.getElementById('refresh-prompts').addEventListener('click', renderHappyPrompts);
+    document.getElementById('refresh-grateful-prompts').addEventListener('click', renderGratefulPrompts);
     document.getElementById('save-entry').addEventListener('click', saveEntry);
 
     // Календарь
