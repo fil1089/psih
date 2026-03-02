@@ -19,7 +19,7 @@ module.exports = async function handler(req, res) {
 
         if (req.method === 'GET') {
             const rows = await sql`
-                SELECT id, date, day_key, time_of_day, emotions, happy_text, notes
+                SELECT id, date, day_key, time_of_day, emotions, happy_text, grateful_text, notes
                 FROM entries
                 WHERE user_id = ${userId}
                 ORDER BY date DESC
@@ -28,15 +28,15 @@ module.exports = async function handler(req, res) {
         }
 
         if (req.method === 'POST') {
-            const { id, date, dayKey, timeOfDay, emotions, happyText, notes } = req.body;
+            const { id, date, dayKey, timeOfDay, emotions, happyText, gratefulText, notes } = req.body;
 
             if (!id || !date || !dayKey || !timeOfDay || !emotions) {
                 return res.status(400).json({ error: 'Missing required fields' });
             }
 
             await sql`
-                INSERT INTO entries (id, user_id, date, day_key, time_of_day, emotions, happy_text, notes)
-                VALUES (${id}, ${userId}, ${date}, ${dayKey}, ${timeOfDay}, ${JSON.stringify(emotions)}, ${happyText || ''}, ${notes || ''})
+                INSERT INTO entries (id, user_id, date, day_key, time_of_day, emotions, happy_text, grateful_text, notes)
+                VALUES (${id}, ${userId}, ${date}, ${dayKey}, ${timeOfDay}, ${JSON.stringify(emotions)}, ${happyText || ''}, ${gratefulText || ''}, ${notes || ''})
             `;
 
             return res.status(201).json({ success: true, id });

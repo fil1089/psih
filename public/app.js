@@ -318,6 +318,7 @@ async function loadEntries() {
             timeOfDay: r.time_of_day,
             emotions: r.emotions || [],
             happyText: r.happy_text || '',
+            gratefulText: r.grateful_text || '',
             notes: r.notes || ''
         }));
     } catch (err) {
@@ -440,15 +441,19 @@ function switchTimeOfDay(time) {
     document.querySelector(`.time-btn[data-time="${time}"]`).classList.add('active');
 
     const happyBlock = document.getElementById('happy-block');
+    const gratefulBlock = document.getElementById('grateful-block');
     const saveBtnText = document.getElementById('save-btn-text');
 
     if (time === 'morning') {
         happyBlock.style.display = 'block';
+        gratefulBlock.style.display = 'none';
         saveBtnText.textContent = 'Сохранить утреннюю запись';
         document.getElementById('happy-text').value = '';
     } else {
         happyBlock.style.display = 'none';
+        gratefulBlock.style.display = 'block';
         saveBtnText.textContent = 'Сохранить вечернюю запись';
+        document.getElementById('grateful-text').value = '';
     }
 
     document.getElementById('notes-text').value = '';
@@ -639,6 +644,9 @@ async function saveEntry() {
     const happyText = state.timeOfDay === 'morning'
         ? document.getElementById('happy-text').value.trim()
         : '';
+    const gratefulText = state.timeOfDay === 'evening'
+        ? document.getElementById('grateful-text').value.trim()
+        : '';
     const notesText = document.getElementById('notes-text').value.trim();
 
     const entry = {
@@ -648,6 +656,7 @@ async function saveEntry() {
         timeOfDay: state.timeOfDay,
         emotions: [...state.selectedEmotions],
         happyText,
+        gratefulText,
         notes: notesText
     };
 
@@ -668,6 +677,7 @@ async function saveEntry() {
         // Сброс
         state.selectedEmotions = [];
         document.getElementById('happy-text').value = '';
+        document.getElementById('grateful-text').value = '';
         document.getElementById('notes-text').value = '';
         renderAccordion();
         updateSelectionCounter();
@@ -804,6 +814,13 @@ function openModal(entryId) {
             <div class="modal-happy">
                 <div class="modal-happy-label">✨ Почему я сегодня счастлив:</div>
                 <div class="modal-happy-text">${escapeHtml(entry.happyText)}</div>
+            </div>
+        ` : ''}
+
+        ${entry.gratefulText ? `
+            <div class="modal-happy" style="border-color: rgba(139,108,240,0.2); background: rgba(139,108,240,0.06)">
+                <div class="modal-happy-label">🙏 За что я благодарен:</div>
+                <div class="modal-happy-text">${escapeHtml(entry.gratefulText)}</div>
             </div>
         ` : ''}
 

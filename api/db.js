@@ -57,6 +57,16 @@ async function initDb() {
         if (!colCheck[0].ex) {
             await sql`ALTER TABLE entries ADD COLUMN user_id TEXT DEFAULT 'legacy'`;
         }
+        // Добавить grateful_text если нет
+        const gratCol = await sql`
+            SELECT EXISTS (
+                SELECT FROM information_schema.columns 
+                WHERE table_name = 'entries' AND column_name = 'grateful_text'
+            ) AS ex
+        `;
+        if (!gratCol[0].ex) {
+            await sql`ALTER TABLE entries ADD COLUMN grateful_text TEXT DEFAULT ''`;
+        }
     } else {
         await sql`
             CREATE TABLE entries (
@@ -67,6 +77,7 @@ async function initDb() {
                 time_of_day TEXT NOT NULL,
                 emotions JSONB NOT NULL DEFAULT '[]',
                 happy_text TEXT DEFAULT '',
+                grateful_text TEXT DEFAULT '',
                 notes TEXT DEFAULT '',
                 created_at TIMESTAMPTZ DEFAULT NOW()
             )

@@ -707,6 +707,42 @@ body::before {
     box-shadow: 0 0 0 3px rgba(240, 192, 108, 0.12);
 }
 
+/* ======= БЛОК "ЗА ЧТО Я БЛАГОДАРЕН" ======= */
+
+.grateful-block {
+    margin-bottom: 32px;
+    padding: 24px;
+    background: linear-gradient(135deg, rgba(139, 108, 240, 0.08), rgba(139, 108, 240, 0.02));
+    border: 1px solid rgba(139, 108, 240, 0.2);
+    border-radius: var(--radius-lg);
+    transition: var(--transition-slow);
+}
+
+.grateful-textarea {
+    width: 100%;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(139, 108, 240, 0.15);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-family: var(--font-family);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    resize: vertical;
+    min-height: 100px;
+    outline: none;
+    transition: var(--transition);
+}
+
+.grateful-textarea::placeholder {
+    color: var(--text-muted);
+}
+
+.grateful-textarea:focus {
+    border-color: var(--color-evening);
+    box-shadow: 0 0 0 3px rgba(139, 108, 240, 0.12);
+}
+
 /* ======= СЧЁТЧИК ВЫБРАННЫХ ======= */
 
 .selection-counter {
