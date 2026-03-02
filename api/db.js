@@ -16,11 +16,16 @@ function getDb() {
 async function initDb() {
     const sql = getDb();
 
-    // Таблица пользователей (пересоздаём если структура сломана)
+    // Таблица пользователей — проверяем ВСЕ нужные столбцы
+    let usersOk = false;
     try {
-        await sql`SELECT email FROM users LIMIT 0`;
+        await sql`SELECT id, email, password_hash, salt FROM users LIMIT 0`;
+        usersOk = true;
     } catch {
-        // Таблица не существует или нет столбца email — пересоздаём
+        usersOk = false;
+    }
+
+    if (!usersOk) {
         await sql`DROP TABLE IF EXISTS users CASCADE`;
         await sql`
             CREATE TABLE users (
