@@ -45,12 +45,12 @@ function toggleAuthMode() {
 }
 
 async function handleAuth() {
-    const username = document.getElementById('auth-username').value.trim();
+    const email = document.getElementById('auth-email').value.trim();
     const password = document.getElementById('auth-password').value;
     const btn = document.getElementById('auth-submit');
 
-    if (!username || !password) {
-        showAuthError('Введите логин и пароль');
+    if (!email || !password) {
+        showAuthError('Введите email и пароль');
         return;
     }
 
@@ -62,7 +62,7 @@ async function handleAuth() {
         const res = await fetch(AUTH_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: authMode, username, password })
+            body: JSON.stringify({ action: authMode, email, password })
         });
 
         const data = await res.json();
@@ -76,7 +76,7 @@ async function handleAuth() {
 
         authToken = data.token;
         localStorage.setItem('auth_token', authToken);
-        localStorage.setItem('auth_username', data.username);
+        localStorage.setItem('auth_email', data.email);
 
         // Скрыть логин, показать приложение
         document.getElementById('auth-screen').style.display = 'none';
@@ -93,10 +93,10 @@ async function handleAuth() {
 function logout() {
     authToken = null;
     localStorage.removeItem('auth_token');
-    localStorage.removeItem('auth_username');
+    localStorage.removeItem('auth_email');
     document.getElementById('app').style.display = 'none';
     document.getElementById('auth-screen').style.display = 'flex';
-    document.getElementById('auth-username').value = '';
+    document.getElementById('auth-email').value = '';
     document.getElementById('auth-password').value = '';
     hideAuthError();
 }
@@ -961,7 +961,7 @@ function initAuth() {
     document.getElementById('auth-password').addEventListener('keydown', e => {
         if (e.key === 'Enter') handleAuth();
     });
-    document.getElementById('auth-username').addEventListener('keydown', e => {
+    document.getElementById('auth-email').addEventListener('keydown', e => {
         if (e.key === 'Enter') document.getElementById('auth-password').focus();
     });
 }

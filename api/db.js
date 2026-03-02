@@ -16,41 +16,43 @@ function getDb() {
 async function initDb() {
     const sql = getDb();
 
-    // Таблица пользователей
-    await sql`
-        CREATE TABLE IF NOT EXISTS users (
-            id TEXT PRIMARY KEY,
-            username TEXT UNIQUE NOT NULL,
-            password_hash TEXT NOT NULL,
-            salt TEXT NOT NULL,
-            created_at TIMESTAMPTZ DEFAULT NOW()
-        )
-    `;
+    // Таблица пользователей (пересоздаём если структура сломана)
+    try {
+        await sql`SELECT email FROM users LIMIT 0`;
+    } catch {
+        // Таблица не существует или нет столбца email — пересоздаём
+        await sql`DROP TABLE IF EXISTS users CASCADE`;
+        await sql`
+            CREATE TABLE users (
+                id TEXT PRIMARY KEY,
+                email TEXT UNIQUE NOT NULL,
+                password_hash TEXT NOT NULL,
+                salt TEXT NOT NULL,
+                created_at TIMESTAMPTZ DEFAULT NOW()
+            )
+        `;
+    }
 
-    // Таблица записей — проверяем, есть ли столбец user_id
-    // (может существовать старая таблица без него)
-    const tableExists = await sql`
+    // Таблица записей
+    const tableCheck = await sql`
         SELECT EXISTS (
             SELECT FROM information_schema.tables 
             WHERE table_name = 'entries'
-        ) AS exists
+        ) AS ex
     `;
 
-    if (tableExists[0].exists) {
-        // Проверяем наличие столбца user_id
-        const colExists = await sql`
+    if (tableCheck[0].ex) {
+        // Добавить user_id если нет
+        const colCheck = await sql`
             SELECT EXISTS (
                 SELECT FROM information_schema.columns 
                 WHERE table_name = 'entries' AND column_name = 'user_id'
-            ) AS exists
+            ) AS ex
         `;
-
-        if (!colExists[0].exists) {
-            // Старая таблица без user_id — добавляем столбец
+        if (!colCheck[0].ex) {
             await sql`ALTER TABLE entries ADD COLUMN user_id TEXT DEFAULT 'legacy'`;
         }
     } else {
-        // Новая таблица с user_id
         await sql`
             CREATE TABLE entries (
                 id TEXT PRIMARY KEY,
@@ -76,7 +78,6 @@ function createSalt() {
     return crypto.randomBytes(32).toString('hex');
 }
 
-// Токен — HMAC(userId:timestamp) с секретом
 function createToken(userId) {
     const timestamp = Date.now();
     const secret = process.env.DATABASE_URL || 'fallback-secret';
@@ -91,7 +92,6 @@ function verifyToken(token) {
         const secret = process.env.DATABASE_URL || 'fallback-secret';
         const expected = crypto.createHmac('sha256', secret).update(`${userId}:${timestamp}`).digest('hex');
         if (signature !== expected) return null;
-        // Токен валиден 30 дней
         if (Date.now() - timestamp > 30 * 24 * 60 * 60 * 1000) return null;
         return userId;
     } catch {
@@ -99,7 +99,6 @@ function verifyToken(token) {
     }
 }
 
-// Получить userId из заголовка Authorization
 function getUserId(req) {
     const auth = req.headers.authorization;
     if (!auth || !auth.startsWith('Bearer ')) return null;
