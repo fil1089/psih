@@ -94,11 +94,45 @@ function logout() {
     authToken = null;
     localStorage.removeItem('auth_token');
     localStorage.removeItem('auth_email');
+    closeProfilePopup();
     document.getElementById('app').style.display = 'none';
     document.getElementById('auth-screen').style.display = 'flex';
     document.getElementById('auth-email').value = '';
     document.getElementById('auth-password').value = '';
     hideAuthError();
+}
+
+function toggleProfilePopup() {
+    const popup = document.getElementById('profile-popup');
+    const btn = document.getElementById('nav-profile');
+    const isOpen = popup.style.display !== 'none';
+
+    if (isOpen) {
+        closeProfilePopup();
+    } else {
+        // Показать email
+        const email = localStorage.getItem('auth_email') || '—';
+        document.getElementById('profile-email').textContent = email;
+        popup.style.display = 'flex';
+        btn.classList.add('active');
+
+        // Оверлей для закрытия
+        let overlay = document.querySelector('.profile-popup-overlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.className = 'profile-popup-overlay';
+            overlay.addEventListener('click', closeProfilePopup);
+            document.body.appendChild(overlay);
+        }
+        overlay.style.display = 'block';
+    }
+}
+
+function closeProfilePopup() {
+    document.getElementById('profile-popup').style.display = 'none';
+    document.getElementById('nav-profile').classList.remove('active');
+    const overlay = document.querySelector('.profile-popup-overlay');
+    if (overlay) overlay.style.display = 'none';
 }
 
 // ============ ДАННЫЕ ЭМОЦИЙ ============
@@ -957,13 +991,16 @@ function initAuth() {
     document.getElementById('auth-submit').addEventListener('click', handleAuth);
     document.getElementById('auth-toggle').addEventListener('click', toggleAuthMode);
 
-    // Enter на полях
     document.getElementById('auth-password').addEventListener('keydown', e => {
         if (e.key === 'Enter') handleAuth();
     });
     document.getElementById('auth-email').addEventListener('keydown', e => {
         if (e.key === 'Enter') document.getElementById('auth-password').focus();
     });
+
+    // Профиль
+    document.getElementById('nav-profile').addEventListener('click', toggleProfilePopup);
+    document.getElementById('profile-logout').addEventListener('click', logout);
 }
 
 async function init() {
