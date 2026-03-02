@@ -5,6 +5,9 @@ let sql;
 
 function getDb() {
     if (!sql) {
+        if (!process.env.DATABASE_URL) {
+            throw new Error('DATABASE_URL is not set');
+        }
         sql = neon(process.env.DATABASE_URL);
     }
     return sql;
@@ -12,6 +15,8 @@ function getDb() {
 
 async function initDb() {
     const sql = getDb();
+
+    // Таблица пользователей
     await sql`
         CREATE TABLE IF NOT EXISTS users (
             id TEXT PRIMARY KEY,
@@ -21,19 +26,45 @@ async function initDb() {
             created_at TIMESTAMPTZ DEFAULT NOW()
         )
     `;
-    await sql`
-        CREATE TABLE IF NOT EXISTS entries (
-            id TEXT PRIMARY KEY,
-            user_id TEXT NOT NULL REFERENCES users(id),
-            date TIMESTAMPTZ NOT NULL,
-            day_key TEXT NOT NULL,
-            time_of_day TEXT NOT NULL,
-            emotions JSONB NOT NULL DEFAULT '[]',
-            happy_text TEXT DEFAULT '',
-            notes TEXT DEFAULT '',
-            created_at TIMESTAMPTZ DEFAULT NOW()
-        )
+
+    // Таблица записей — проверяем, есть ли столбец user_id
+    // (может существовать старая таблица без него)
+    const tableExists = await sql`
+        SELECT EXISTS (
+            SELECT FROM information_schema.tables 
+            WHERE table_name = 'entries'
+        ) AS exists
     `;
+
+    if (tableExists[0].exists) {
+        // Проверяем наличие столбца user_id
+        const colExists = await sql`
+            SELECT EXISTS (
+                SELECT FROM information_schema.columns 
+                WHERE table_name = 'entries' AND column_name = 'user_id'
+            ) AS exists
+        `;
+
+        if (!colExists[0].exists) {
+            // Старая таблица без user_id — добавляем столбец
+            await sql`ALTER TABLE entries ADD COLUMN user_id TEXT DEFAULT 'legacy'`;
+        }
+    } else {
+        // Новая таблица с user_id
+        await sql`
+            CREATE TABLE entries (
+                id TEXT PRIMARY KEY,
+                user_id TEXT NOT NULL DEFAULT 'legacy',
+                date TIMESTAMPTZ NOT NULL,
+                day_key TEXT NOT NULL,
+                time_of_day TEXT NOT NULL,
+                emotions JSONB NOT NULL DEFAULT '[]',
+                happy_text TEXT DEFAULT '',
+                notes TEXT DEFAULT '',
+                created_at TIMESTAMPTZ DEFAULT NOW()
+            )
+        `;
+    }
 }
 
 // Хэширование пароля
@@ -45,7 +76,7 @@ function createSalt() {
     return crypto.randomBytes(32).toString('hex');
 }
 
-// Токен — HMAC(userId:timestamp) с секретом из DATABASE_URL
+// Токен — HMAC(userId:timestamp) с секретом
 function createToken(userId) {
     const timestamp = Date.now();
     const secret = process.env.DATABASE_URL || 'fallback-secret';

@@ -65,6 +65,6 @@ module.exports = async function handler(req, res) {
         return res.status(400).json({ error: 'Укажите action: login или register' });
     } catch (err) {
         console.error('Auth error:', err);
-        return res.status(500).json({ error: 'Ошибка сервера' });
+        return res.status(500).json({ error: 'Ошибка сервера: ' + err.message });
     }
 };
