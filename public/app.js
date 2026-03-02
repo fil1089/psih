@@ -4,6 +4,103 @@
    вечером — 4 эмоции
    ====================================== */
 
+// ============ АВТОРИЗАЦИЯ ============
+
+const AUTH_URL = '/api/auth';
+let authToken = localStorage.getItem('auth_token') || null;
+let authMode = 'login'; // 'login' | 'register'
+
+function getAuthHeaders() {
+    const headers = { 'Content-Type': 'application/json' };
+    if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+    return headers;
+}
+
+function showAuthError(msg) {
+    const el = document.getElementById('auth-error');
+    el.textContent = msg;
+    el.style.display = 'block';
+}
+
+function hideAuthError() {
+    document.getElementById('auth-error').style.display = 'none';
+}
+
+function toggleAuthMode() {
+    authMode = authMode === 'login' ? 'register' : 'login';
+    const btn = document.getElementById('auth-submit');
+    const toggle = document.getElementById('auth-toggle');
+    const switchText = document.getElementById('auth-switch-text');
+
+    if (authMode === 'register') {
+        btn.textContent = 'Зарегистрироваться';
+        switchText.textContent = 'Уже есть аккаунт?';
+        toggle.textContent = 'Войти';
+    } else {
+        btn.textContent = 'Войти';
+        switchText.textContent = 'Нет аккаунта?';
+        toggle.textContent = 'Зарегистрироваться';
+    }
+    hideAuthError();
+}
+
+async function handleAuth() {
+    const username = document.getElementById('auth-username').value.trim();
+    const password = document.getElementById('auth-password').value;
+    const btn = document.getElementById('auth-submit');
+
+    if (!username || !password) {
+        showAuthError('Введите логин и пароль');
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Загрузка...';
+    hideAuthError();
+
+    try {
+        const res = await fetch(AUTH_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: authMode, username, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            showAuthError(data.error || 'Ошибка авторизации');
+            btn.disabled = false;
+            btn.textContent = authMode === 'login' ? 'Войти' : 'Зарегистрироваться';
+            return;
+        }
+
+        authToken = data.token;
+        localStorage.setItem('auth_token', authToken);
+        localStorage.setItem('auth_username', data.username);
+
+        // Скрыть логин, показать приложение
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        await startApp();
+    } catch (err) {
+        console.error('Auth error:', err);
+        showAuthError('Ошибка соединения с сервером');
+        btn.disabled = false;
+        btn.textContent = authMode === 'login' ? 'Войти' : 'Зарегистрироваться';
+    }
+}
+
+function logout() {
+    authToken = null;
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_username');
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('auth-screen').style.display = 'flex';
+    document.getElementById('auth-username').value = '';
+    document.getElementById('auth-password').value = '';
+    hideAuthError();
+}
+
 // ============ ДАННЫЕ ЭМОЦИЙ ============
 
 const EMOTIONS = {
@@ -182,10 +279,10 @@ const state = {
 
 async function loadEntries() {
     try {
-        const res = await fetch(API_URL);
+        const res = await fetch(API_URL, { headers: getAuthHeaders() });
+        if (res.status === 401) { logout(); return; }
         if (!res.ok) throw new Error('Failed to load');
         const rows = await res.json();
-        // Нормализация snake_case → camelCase
         state.entries = rows.map(r => ({
             id: r.id,
             date: r.date,
@@ -529,7 +626,7 @@ async function saveEntry() {
     try {
         const res = await fetch(API_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: getAuthHeaders(),
             body: JSON.stringify(entry)
         });
 
@@ -695,7 +792,10 @@ function closeModal() {
 
 async function deleteEntry(entryId) {
     try {
-        const res = await fetch(`${API_URL}/${entryId}`, { method: 'DELETE' });
+        const res = await fetch(`${API_URL}/${entryId}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders()
+        });
         if (!res.ok) throw new Error('Delete failed');
 
         state.entries = state.entries.filter(e => e.id !== entryId);
@@ -843,7 +943,7 @@ function renderHappyHistory() {
 
 // ============ ИНИЦИАЛИЗАЦИЯ ============
 
-async function init() {
+async function startApp() {
     await loadEntries();
     renderGreeting();
     renderHappyPrompts();
@@ -851,6 +951,23 @@ async function init() {
     updateSelectionCounter();
     updateTodayStatus();
     updateSaveBtn();
+}
+
+function initAuth() {
+    document.getElementById('auth-submit').addEventListener('click', handleAuth);
+    document.getElementById('auth-toggle').addEventListener('click', toggleAuthMode);
+
+    // Enter на полях
+    document.getElementById('auth-password').addEventListener('keydown', e => {
+        if (e.key === 'Enter') handleAuth();
+    });
+    document.getElementById('auth-username').addEventListener('keydown', e => {
+        if (e.key === 'Enter') document.getElementById('auth-password').focus();
+    });
+}
+
+async function init() {
+    initAuth();
 
     // Навигация
     document.querySelectorAll('.nav-btn').forEach(btn => {
@@ -862,13 +979,9 @@ async function init() {
         btn.addEventListener('click', () => switchTimeOfDay(btn.dataset.time));
     });
 
-    // Текстовые поля обновляют кнопку
+    // Текстовые поля
     document.getElementById('happy-text').addEventListener('input', updateSaveBtn);
-
-    // Обновить подсказки
     document.getElementById('refresh-prompts').addEventListener('click', renderHappyPrompts);
-
-    // Сохранение
     document.getElementById('save-entry').addEventListener('click', saveEntry);
 
     // Календарь
@@ -894,6 +1007,13 @@ async function init() {
     document.addEventListener('keydown', e => {
         if (e.key === 'Escape') closeModal();
     });
+
+    // Если есть токен — сразу в приложение
+    if (authToken) {
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        await startApp();
+    }
 }
 
 document.addEventListener('DOMContentLoaded', init);
