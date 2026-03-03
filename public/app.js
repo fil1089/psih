@@ -1057,6 +1057,62 @@ function renderHappyHistory() {
 
 // ============ ИНИЦИАЛИЗАЦИЯ ============
 
+function exportToTxt() {
+    if (state.entries.length === 0) {
+        showToast('Нет записей для экспорта', 'error');
+        return;
+    }
+
+    let textContent = 'ДНЕВНИК ЭМОЦИЙ — Экспорт записей\n';
+    textContent += '=================================\n\n';
+
+    const sortedEntries = [...state.entries].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    sortedEntries.forEach(entry => {
+        const dateStr = formatDate(entry.date);
+        const timeStr = formatTime(entry.date);
+        const timeLabel = entry.timeOfDay === 'morning' ? '☀️ Утро' : '🌙 Вечер';
+
+        textContent += `[${dateStr}, ${timeStr}] ${timeLabel}\n`;
+
+        if (entry.emotions && entry.emotions.length > 0) {
+            const ems = entry.emotions.map(em => em.emotion).join(', ');
+            textContent += `Эмоции: ${ems}\n`;
+        }
+
+        if (entry.happyText) {
+            textContent += `Почему я счастлив:\n${entry.happyText}\n`;
+        }
+
+        if (entry.gratefulText) {
+            textContent += `За что я благодарен:\n${entry.gratefulText}\n`;
+        }
+
+        if (entry.notes) {
+            textContent += `Заметки:\n${entry.notes}\n`;
+        }
+
+        textContent += '---------------------------------\n\n';
+    });
+
+    const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `diary_export_${todayKey()}.txt`;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+
+    setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }, 100);
+
+    closeProfilePopup();
+    showToast('Записи экспортированы!', 'success');
+}
+
 async function startApp() {
     await loadEntries();
     renderGreeting();
@@ -1081,6 +1137,8 @@ function initAuth() {
 
     // Профиль
     document.getElementById('nav-profile').addEventListener('click', toggleProfilePopup);
+    const exportBtn = document.getElementById('profile-export');
+    if (exportBtn) exportBtn.addEventListener('click', exportToTxt);
     document.getElementById('profile-logout').addEventListener('click', logout);
 }
 

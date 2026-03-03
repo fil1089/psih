@@ -293,6 +293,29 @@ body::before {
     margin-bottom: 20px;
 }
 
+.profile-export-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px;
+    background: rgba(108, 176, 240, 0.1);
+    border: 1px solid rgba(108, 176, 240, 0.3);
+    border-radius: var(--radius-md);
+    color: #6cb0f0;
+    font-family: var(--font-family);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    margin-bottom: 10px;
+}
+
+.profile-export-btn:hover {
+    background: rgba(108, 176, 240, 0.2);
+}
+
 .profile-logout-btn {
     display: flex;
     align-items: center;
