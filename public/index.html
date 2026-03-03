@@ -88,14 +88,6 @@
                 <div class="profile-avatar">👤</div>
                 <div class="profile-email" id="profile-email"></div>
                 <div class="profile-status">✅ Вы вошли в аккаунт</div>
-                <button class="profile-export-btn" id="profile-export">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                        <polyline points="7 10 12 15 17 10" />
-                        <line x1="12" y1="15" x2="12" y2="3" />
-                    </svg>
-                    Экспорт в TXT
-                </button>
                 <button class="profile-logout-btn" id="profile-logout">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -248,7 +240,18 @@
         <!-- ======================== -->
         <section id="screen-history" class="screen">
             <div class="screen-content">
-                <h1>История записей</h1>
+                <div class="history-header">
+                    <h1>История записей</h1>
+                    <button class="history-export-btn" id="history-export">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="7 10 12 15 17 10" />
+                            <line x1="12" y1="15" x2="12" y2="3" />
+                        </svg>
+                        Экспорт
+                    </button>
+                </div>
 
                 <!-- Календарь -->
                 <div class="calendar-section">

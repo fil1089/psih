@@ -1109,7 +1109,6 @@ function exportToTxt() {
         URL.revokeObjectURL(url);
     }, 100);
 
-    closeProfilePopup();
     showToast('Записи экспортированы!', 'success');
 }
 
@@ -1137,13 +1136,15 @@ function initAuth() {
 
     // Профиль
     document.getElementById('nav-profile').addEventListener('click', toggleProfilePopup);
-    const exportBtn = document.getElementById('profile-export');
-    if (exportBtn) exportBtn.addEventListener('click', exportToTxt);
     document.getElementById('profile-logout').addEventListener('click', logout);
 }
 
 async function init() {
     initAuth();
+
+    // Экспорт
+    const exportBtn = document.getElementById('history-export');
+    if (exportBtn) exportBtn.addEventListener('click', exportToTxt);
 
     // Навигация (только кнопки с data-screen, не профиль)
     document.querySelectorAll('.nav-btn[data-screen]').forEach(btn => {

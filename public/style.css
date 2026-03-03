@@ -293,29 +293,6 @@ body::before {
     margin-bottom: 20px;
 }
 
-.profile-export-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    padding: 12px;
-    background: rgba(108, 176, 240, 0.1);
-    border: 1px solid rgba(108, 176, 240, 0.3);
-    border-radius: var(--radius-md);
-    color: #6cb0f0;
-    font-family: var(--font-family);
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-    margin-bottom: 10px;
-}
-
-.profile-export-btn:hover {
-    background: rgba(108, 176, 240, 0.2);
-}
-
 .profile-logout-btn {
     display: flex;
     align-items: center;
@@ -445,7 +422,46 @@ body::before {
     margin: 0 auto;
 }
 
-.screen-content>h1 {
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.history-header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0;
+    /* Override default */
+    background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.history-export-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: rgba(108, 176, 240, 0.1);
+    border: 1px solid rgba(108, 176, 240, 0.3);
+    border-radius: var(--radius-md);
+    color: #6cb0f0;
+    font-family: var(--font-family);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.history-export-btn:hover {
+    background: rgba(108, 176, 240, 0.2);
+    transform: translateY(-1px);
+}
+
+.screen-content>h1:not(.history-header h1) {
     font-size: 1.75rem;
     font-weight: 700;
     margin-bottom: 24px;
