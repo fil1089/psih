@@ -12,6 +12,7 @@
         rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/twemoji@latest/dist/twemoji.min.js" crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -31,8 +32,32 @@
                 </div>
                 <div class="auth-field">
                     <label for="auth-password">Пароль</label>
-                    <input type="password" id="auth-password" placeholder="Введите пароль"
-                        autocomplete="current-password">
+                    <div class="password-input-wrapper">
+                        <input type="password" id="auth-password" placeholder="Введите пароль"
+                            autocomplete="current-password">
+                        <button type="button" class="password-toggle" id="password-toggle" title="Показать пароль">
+                            <svg id="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                <circle cx="12" cy="12" r="3" />
+                            </svg>
+                            <svg id="eye-off-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" style="display:none">
+                                <path
+                                    d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                                <line x1="1" y1="1" x2="23" y2="23" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="auth-warning" id="auth-warning">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                        <line x1="12" y1="9" x2="12" y2="13" />
+                        <line x1="12" y1="17" x2="12.01" y2="17" />
+                    </svg>
+                    Запишите или запомните пароль, его нельзя восстановить.
                 </div>
                 <button class="auth-btn" id="auth-submit">Войти</button>
             </div>
@@ -110,7 +135,7 @@
                     <!-- JS -->
                 </div>
 
-                <!-- Переключатель Утро / Вечер -->
+                <!-- Переключатель Утро / Вечер / Заметка -->
                 <div class="time-toggle">
                     <button class="time-btn active" data-time="morning" id="btn-morning">
                         <span class="time-icon">☀️</span> Утро
@@ -118,6 +143,24 @@
                     <button class="time-btn" data-time="evening" id="btn-evening">
                         <span class="time-icon">🌙</span> Вечер
                     </button>
+                    <button class="time-btn" data-time="note" id="btn-note">
+                        <span class="time-icon">📝</span> Заметка
+                    </button>
+                </div>
+
+                <!-- Выбор даты (для записей за прошлые дни) -->
+                <div class="date-picker-block" id="date-picker-block">
+                    <label class="date-picker-label" for="entry-date">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" />
+                            <line x1="16" y1="2" x2="16" y2="6" />
+                            <line x1="8" y1="2" x2="8" y2="6" />
+                            <line x1="3" y1="10" x2="21" y2="10" />
+                        </svg>
+                        Дата записи
+                    </label>
+                    <input type="date" id="entry-date" class="entry-date-input">
                 </div>
 
                 <!-- Статус записей на сегодня -->
@@ -242,16 +285,29 @@
             <div class="screen-content">
                 <div class="history-header">
                     <h1>История записей</h1>
-                    <button class="history-export-btn" id="history-export">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                            <polyline points="7 10 12 15 17 10" />
-                            <line x1="12" y1="15" x2="12" y2="3" />
-                        </svg>
-                        Экспорт
-                    </button>
+                    <div class="history-header-actions">
+                        <button class="history-import-btn" id="history-import" title="Импортировать из TXT">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="7 14 12 9 17 14" />
+                                <line x1="12" y1="9" x2="12" y2="21" />
+                            </svg>
+                            Импорт
+                        </button>
+                        <button class="history-export-btn" id="history-export" title="Экспортировать в TXT">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="7 10 12 15 17 10" />
+                                <line x1="12" y1="15" x2="12" y2="3" />
+                            </svg>
+                            Экспорт
+                        </button>
+                    </div>
                 </div>
+                <!-- Скрытый input для импорта -->
+                <input type="file" id="import-file-input" accept=".txt" style="display:none">
 
                 <!-- Календарь -->
                 <div class="calendar-section">

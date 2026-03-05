@@ -30,13 +30,13 @@ module.exports = async function handler(req, res) {
         if (req.method === 'POST') {
             const { id, date, dayKey, timeOfDay, emotions, happyText, gratefulText, notes } = req.body;
 
-            if (!id || !date || !dayKey || !timeOfDay || !emotions) {
+            if (!id || !date || !dayKey || !timeOfDay) {
                 return res.status(400).json({ error: 'Missing required fields' });
             }
 
             await sql`
                 INSERT INTO entries (id, user_id, date, day_key, time_of_day, emotions, happy_text, grateful_text, notes)
-                VALUES (${id}, ${userId}, ${date}, ${dayKey}, ${timeOfDay}, ${JSON.stringify(emotions)}, ${happyText || ''}, ${gratefulText || ''}, ${notes || ''})
+                VALUES (${id}, ${userId}, ${date}, ${dayKey}, ${timeOfDay}, ${JSON.stringify(emotions || [])}, ${happyText || ''}, ${gratefulText || ''}, ${notes || ''})
             `;
 
             return res.status(201).json({ success: true, id });

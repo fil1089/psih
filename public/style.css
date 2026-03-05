@@ -3,6 +3,7 @@
    ====================================== */
 
 :root {
+    color-scheme: dark;
     --bg-primary: #0f0f13;
     --bg-secondary: #1a1a24;
     --bg-card: #22223a;
@@ -236,6 +237,61 @@ body::before {
     text-decoration: underline;
 }
 
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-input-wrapper input {
+    width: 100%;
+    padding-right: 44px;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 8px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    transition: var(--transition);
+}
+
+.password-toggle:hover {
+    color: var(--text-secondary);
+}
+
+.auth-warning {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: rgba(240, 192, 108, 0.08);
+    border: 1px solid rgba(240, 192, 108, 0.25);
+    border-radius: var(--radius-sm);
+    color: var(--color-joy);
+    font-size: 0.8rem;
+    text-align: left;
+    line-height: 1.4;
+}
+
+.auth-warning svg {
+    flex-shrink: 0;
+}
+
+/* Twemoji */
+img.emoji {
+    height: 1.2em;
+    width: 1.2em;
+    margin: 0 0.05em 0 0.1em;
+    vertical-align: -0.15em;
+    display: inline;
+}
+
 /* ======= НАВИГАЦИЯ ======= */
 
 /* Profile popup */
@@ -461,6 +517,33 @@ body::before {
     transform: translateY(-1px);
 }
 
+.history-header-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.history-import-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: rgba(108, 240, 176, 0.1);
+    border: 1px solid rgba(108, 240, 176, 0.3);
+    border-radius: var(--radius-md);
+    color: #6cf0b0;
+    font-family: var(--font-family);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.history-import-btn:hover {
+    background: rgba(108, 240, 176, 0.2);
+    transform: translateY(-1px);
+}
+
 .screen-content>h1:not(.history-header h1) {
     font-size: 1.75rem;
     font-weight: 700;
@@ -544,6 +627,55 @@ body::before {
     background: linear-gradient(135deg, rgba(139, 108, 240, 0.2), rgba(139, 108, 240, 0.08));
     color: var(--color-evening);
     box-shadow: 0 0 20px rgba(139, 108, 240, 0.15);
+}
+
+.time-btn.active[data-time="note"] {
+    background: linear-gradient(135deg, rgba(108, 240, 224, 0.2), rgba(108, 240, 224, 0.08));
+    color: #6cf0e0;
+    box-shadow: 0 0 20px rgba(108, 240, 224, 0.15);
+}
+
+/* Датапикер для записей за прошлые дни */
+.date-picker-block {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding: 10px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+}
+
+.date-picker-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    flex-shrink: 0;
+    cursor: default;
+}
+
+.entry-date-input {
+    flex: 1;
+    padding: 6px 10px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-family: var(--font-family);
+    font-size: 0.9rem;
+    outline: none;
+    cursor: pointer;
+    transition: var(--transition);
+    color-scheme: dark;
+}
+
+.entry-date-input:focus {
+    border-color: var(--color-sadness);
+    box-shadow: 0 0 0 3px rgba(108, 176, 240, 0.12);
 }
 
 .time-icon {
@@ -1870,4 +2002,38 @@ body::before {
 
 ::-webkit-scrollbar-thumb:hover {
     background: var(--border-light);
+}
+
+/* ======= ИСТОРИЯ: ТИП ЗАМЕТКИ ======= */
+
+.entry-card-time-badge.note {
+    background: rgba(108, 240, 224, 0.12);
+    color: #6cf0e0;
+    border: 1px solid rgba(108, 240, 224, 0.25);
+}
+
+.entry-card-note-preview {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-top: 8px;
+    padding: 10px 12px;
+    background: rgba(108, 240, 224, 0.06);
+    border-left: 2px solid rgba(108, 240, 224, 0.3);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    white-space: pre-wrap;
+}
+
+/* ======= КАЛЕНДАРЬ: ТОЧКА ЗАМЕТКИ ======= */
+
+.cal-dot.note {
+    background: #6cf0e0;
+}
+
+/* ======= МОДАЛКА: ТИП ЗАМЕТКИ ======= */
+
+.modal-time-badge.note {
+    background: rgba(108, 240, 224, 0.12);
+    color: #6cf0e0;
+    border: 1px solid rgba(108, 240, 224, 0.3);
 }

@@ -4,6 +4,15 @@
    вечером — 4 эмоции
    ====================================== */
 
+// ============ TWEMOJI HELPER ============
+
+function emojiHtml(str) {
+    if (typeof twemoji !== 'undefined') {
+        return twemoji.parse(str, { folder: 'svg', ext: '.svg' });
+    }
+    return str;
+}
+
 // ============ АВТОРИЗАЦИЯ ============
 
 const AUTH_URL = '/api/auth';
@@ -110,13 +119,13 @@ function toggleProfilePopup() {
         popup.style.display = 'flex';
         btn.classList.add('active');
 
-        // Оверлей для закрытия
+        // Оверлей для закрытия (внутри #app, чтобы z-index работал)
         let overlay = document.querySelector('.profile-popup-overlay');
         if (!overlay) {
             overlay = document.createElement('div');
             overlay.className = 'profile-popup-overlay';
             overlay.addEventListener('click', closeProfilePopup);
-            document.body.appendChild(overlay);
+            document.getElementById('app').appendChild(overlay);
         }
         overlay.style.display = 'block';
     }
@@ -247,6 +256,11 @@ const HAPPY_PROMPTS = [
     'У меня есть человек, которому я доверяю',
     'Я могу позвонить маме/папе',
     'Кто-то разделил со мной радость',
+    'Я услышал смех близкого человека',
+    'Мне подарили внимание и заботу',
+    'Я чувствую себя нужным кому-то',
+    'У меня есть тот, с кем можно помолчать',
+    'Я могу быть собой рядом с близкими',
     // Природа и окружение
     'Я увидел красивый закат',
     'За окном поют птицы',
@@ -256,6 +270,12 @@ const HAPPY_PROMPTS = [
     'Солнце светит и мне тепло',
     'Я увидел цветы',
     'Я услышал шум дождя',
+    'Я увидел радугу после дождя',
+    'Мне нравится звук ветра в деревьях',
+    'Я посидел у воды и успокоился',
+    'Я заметил первые листья весной',
+    'Мне нравится хруст снега под ногами',
+    'Я поймал красивый момент на фото',
     // Тело и здоровье
     'Моё тело работает и несёт меня',
     'Я могу ходить',
@@ -263,6 +283,11 @@ const HAPPY_PROMPTS = [
     'Я позаботился о своём здоровье',
     'У меня ничего не болит',
     'Я чувствую лёгкость в теле',
+    'Я сделал зарядку и чувствую прилив сил',
+    'Я выпил стакан воды и стало лучше',
+    'Я размялся после долгого сидения',
+    'Я хорошо поспал ночью',
+    'Я чувствую себя отдохнувшим',
     // Моменты
     'Сегодня я рассмеялся',
     'Я посмотрел хороший фильм',
@@ -272,12 +297,20 @@ const HAPPY_PROMPTS = [
     'Я горжусь тем, что я сделал',
     'Я отдохнул и чувствую себя лучше',
     'Я принял хорошее решение',
+    'Я довёл дело до конца',
+    'Я написал что-то, что мне нравится',
+    'Я решил задачу, над которой думал',
+    'Я превзошёл свои ожидания',
     // Еда и уют
     'Я поел вкусный завтрак',
     'Я в тёплой удобной одежде',
     'У меня есть уютное место для отдыха',
     'Я укутался в одеяло',
     'Я приготовил что-то вкусное',
+    'Я попробовал новое блюдо',
+    'Я выпечку/десерт сделал сам',
+    'У меня горит уютная лампа вечером',
+    'Я зажёг свечу и создал атмосферу',
     // Простые радости
     'Я могу читать книги',
     'У меня есть любимая музыка',
@@ -288,34 +321,103 @@ const HAPPY_PROMPTS = [
     'Я свободен выбирать что делать',
     'Сегодня я стал на день мудрее',
     'Я ценю то, что имею',
-    'Жизнь продолжается, и это уже хорошо'
+    'Жизнь продолжается, и это уже хорошо',
+    // Развитие и творчество
+    'Я научился чему-то полезному',
+    'Я попробовал что-то новое впервые',
+    'Я преодолел свой страх',
+    'Я стал немного лучше, чем вчера',
+    'У меня есть идея, которая вдохновляет',
+    'Я создал что-то своими руками',
+    'Я написал свои мысли и стало легче',
+    'У меня появилась новая цель',
+    'Я осознал что-то важное о себе',
+    'Я нашёл вдохновение для проекта',
+    // Маленькие победы
+    'Я встал вовремя',
+    'Я не сдался в сложный момент',
+    'Я вычеркнул дело из списка задач',
+    'Я навёл порядок дома',
+    'Я выбросил что-то ненужное',
+    'Я организовал своё время',
+    'Я сказал "нет" тому, что мне мешает',
+    'Я позволил себе отдых без чувства вины',
+    'Я признал свои чувства'
 ];
 
 const GRATEFUL_PROMPTS = [
+    // Люди
     'Здоровье моих близких',
+    'Приятный разговор с другом',
+    'Поддержку от человека, который рядом',
+    'Доброту незнакомого человека',
+    'Случайную улыбку прохожего',
+    'Терпение близких ко мне',
+    'Что кто-то выслушал меня',
+    'Помощь, которую мне оказали',
+    'Человека, который в меня верит',
+    'Тех, кто рядом в трудные моменты',
+    'Наставника или учителя, который вдохновляет',
+    'Коллегу, который помог с задачей',
+    // Комфорт и быт
     'Вкусный ужин сегодня',
-    'Интересную задачу на работе или учёбе',
     'Спокойный вечер дома',
     'Возможность отдохнуть',
-    'Приятный разговор с другом',
     'Хорошую погоду или уютный дождь',
     'Горячий душ',
     'Мягкую постель',
-    'Любимого питомца',
-    'Музыку, которая подняла мне настроение',
+    'Вкусный утренний или вечерний чай',
+    'Уютное освещение в комнате',
+    'Чистый дом после уборки',
+    'Тёплые носки в холодный день',
+    'Запах свежего хлеба или выпечки',
+    'Горячую ванну после тяжёлого дня',
+    // Работа и учёба
+    'Интересную задачу на работе или учёбе',
     'Завершенное за день дело',
     'То, что я справился со сложной ситуацией',
     'Новое знание или навык, полученный сегодня',
-    'Случайную улыбку прохожего',
+    'Возможность заниматься тем, что нравится',
+    'Проект, над которым интересно работать',
+    'Стабильную работу и доход',
+    'Мозг, который может решать задачи',
+    'Свободу выбирать чем заниматься',
+    // Здоровье и тело
+    'Свое здоровье и тело',
+    'Что я могу двигаться',
+    'Хороший сон прошлой ночью',
+    'Энергию, которую чувствую сегодня',
+    'Что боль прошла или стало легче',
+    'Своё дыхание — оно всегда со мной',
+    // Природа и мир
+    'Красивый вид из окна',
+    'Что-то красивое, что я сегодня увидел',
+    'Пение птиц за окном',
+    'Свежий воздух на прогулке',
+    'Звёзды на ночном небе',
+    'Первые тёплые дни весны',
+    'Шум дождя за окном',
+    // Развлечения и хобби
+    'Любимого питомца',
+    'Музыку, которая подняла мне настроение',
     'Хорошую книгу или фильм',
+    'Смех и юмор в течение дня',
+    'Доступ к информации и интернету',
+    'Любимую песню, которая зазвучала',
+    'Хороший подкаст или видео',
+    'Время на своё хобби',
+    'Компьютерную игру, которая порадовала',
+    // Внутренний мир
     'Чувство безопасности',
     'Своё упорство и силу',
-    'Вкусный утренний или вечерний чай',
-    'Что-то красивое, что я сегодня увидел',
-    'Помощь, которую мне оказали',
-    'Свое здоровье и тело',
-    'Доступ к информации и интернету',
-    'Смех и юмор в течение дня'
+    'Момент тишины и покоя',
+    'Что я нашёл время для себя',
+    'Свою способность чувствовать',
+    'Что я не сдался',
+    'Урок, который преподнёс мне этот день',
+    'Свою честность перед собой',
+    'Возможность начать заново завтра',
+    'Что я записываю свои мысли и чувства'
 ];
 
 const PROMPTS_PER_PAGE = 6;
@@ -362,6 +464,21 @@ function generateId() {
 function todayKey() {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+// Получить выбранный dayKey из date-picker (или сегодня)
+function getSelectedDayKey() {
+    const input = document.getElementById('entry-date');
+    return (input && input.value) ? input.value : todayKey();
+}
+
+// Получить ISO дату из выбранной даты (полночь по UTC)
+function getSelectedDate() {
+    const key = getSelectedDayKey();
+    const today = todayKey();
+    if (key === today) return new Date().toISOString();
+    // Для прошлых дней используем 12:00 дня
+    return new Date(key + 'T12:00:00').toISOString();
 }
 
 function formatDate(dateStr) {
@@ -446,7 +563,7 @@ function renderGreeting() {
     const dayNames = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
     const now = new Date();
     el.innerHTML = `
-        <span class="greeting-emoji">${emoji}</span>
+        <span class="greeting-emoji">${emojiHtml(emoji)}</span>
         <h1>${greeting}!</h1>
         <p class="date-text">${dayNames[now.getDay()]}, ${formatDate(now.toISOString())}</p>
     `;
@@ -470,16 +587,24 @@ function switchTimeOfDay(time) {
 
     const happyBlock = document.getElementById('happy-block');
     const gratefulBlock = document.getElementById('grateful-block');
+    const emotionsBlock = document.querySelector('.emotions-block');
     const saveBtnText = document.getElementById('save-btn-text');
 
-    if (time === 'morning') {
+    if (time === 'note') {
+        happyBlock.style.display = 'none';
+        gratefulBlock.style.display = 'none';
+        emotionsBlock.style.display = 'none';
+        saveBtnText.textContent = 'Сохранить заметку';
+    } else if (time === 'morning') {
         happyBlock.style.display = 'block';
         gratefulBlock.style.display = 'none';
+        emotionsBlock.style.display = 'block';
         saveBtnText.textContent = 'Сохранить утреннюю запись';
         document.getElementById('happy-text').value = '';
     } else {
         happyBlock.style.display = 'none';
         gratefulBlock.style.display = 'block';
+        emotionsBlock.style.display = 'block';
         saveBtnText.textContent = 'Сохранить вечернюю запись';
         document.getElementById('grateful-text').value = '';
     }
@@ -500,14 +625,14 @@ function updateTodayStatus() {
 
     container.innerHTML = `
         <div class="status-item ${morning ? 'done' : ''}">
-            <span class="status-icon">${morning ? '✅' : '☀️'}</span>
+            <span class="status-icon">${morning ? emojiHtml('✅') : emojiHtml('☀️')}</span>
             <div class="status-text">
                 <strong>Утро</strong>
                 ${morning ? 'Записано' : 'Не записано'}
             </div>
         </div>
         <div class="status-item ${evening ? 'done' : ''}">
-            <span class="status-icon">${evening ? '✅' : '🌙'}</span>
+            <span class="status-icon">${evening ? emojiHtml('✅') : emojiHtml('🌙')}</span>
             <div class="status-text">
                 <strong>Вечер</strong>
                 ${evening ? 'Записано' : 'Не записано'}
@@ -611,7 +736,7 @@ function renderAccordion() {
             <div class="accordion-item" data-category="${key}">
                 <button class="accordion-header"
                     style="--cat-color: ${cat.color}; --cat-bg: ${cat.bg}">
-                    <span class="accordion-emoji">${cat.emoji}</span>
+                    <span class="accordion-emoji">${emojiHtml(cat.emoji)}</span>
                     <span class="accordion-name">${cat.name}</span>
                     <span class="accordion-selected-count" 
                           id="acc-count-${key}"
@@ -691,13 +816,18 @@ function updateSelectionCounter() {
 
 function updateSaveBtn() {
     const btn = document.getElementById('save-entry');
-    const enough = state.selectedEmotions.length >= MIN_EMOTIONS;
 
-    if (state.timeOfDay === 'morning') {
-        const happyText = document.getElementById('happy-text').value.trim();
-        btn.disabled = !enough || happyText.length === 0;
+    if (state.timeOfDay === 'note') {
+        const notesText = document.getElementById('notes-text').value.trim();
+        btn.disabled = notesText.length === 0;
     } else {
-        btn.disabled = !enough;
+        const enough = state.selectedEmotions.length >= MIN_EMOTIONS;
+        if (state.timeOfDay === 'morning') {
+            const happyText = document.getElementById('happy-text').value.trim();
+            btn.disabled = !enough || happyText.length === 0;
+        } else {
+            btn.disabled = !enough;
+        }
     }
 }
 
@@ -717,13 +847,15 @@ async function saveEntry() {
         ? document.getElementById('grateful-text').value.trim()
         : '';
     const notesText = document.getElementById('notes-text').value.trim();
+    const selectedDayKey = getSelectedDayKey();
+    const selectedDate = getSelectedDate();
 
     const entry = {
         id: generateId(),
-        date: new Date().toISOString(),
-        dayKey: todayKey(),
+        date: selectedDate,
+        dayKey: selectedDayKey,
         timeOfDay: state.timeOfDay,
-        emotions: [...state.selectedEmotions],
+        emotions: state.timeOfDay === 'note' ? [] : [...state.selectedEmotions],
         happyText,
         gratefulText,
         notes: notesText
@@ -739,15 +871,21 @@ async function saveEntry() {
         if (!res.ok) throw new Error('Save failed');
 
         state.entries.unshift(entry);
+        // Пересортировать по дате
+        state.entries.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-        const timeLabel = state.timeOfDay === 'morning' ? 'Утренняя' : 'Вечерняя';
-        showToast(`✨ ${timeLabel} запись сохранена!`);
+        const timeLabelMap = { morning: 'Утренняя', evening: 'Вечерняя', note: 'Заметка' };
+        const timeLabel = timeLabelMap[state.timeOfDay] || 'Запись';
+        showToast(`✨ ${timeLabel} сохранена!`);
 
         // Сброс
         state.selectedEmotions = [];
         document.getElementById('happy-text').value = '';
         document.getElementById('grateful-text').value = '';
         document.getElementById('notes-text').value = '';
+        // Сбросить дату на сегодня
+        const dateInput = document.getElementById('entry-date');
+        if (dateInput) dateInput.value = todayKey();
         renderAccordion();
         updateSelectionCounter();
         updateSaveBtn();
@@ -784,8 +922,19 @@ function renderHistory() {
 
     container.innerHTML = state.entries.map(entry => {
         const timeClass = entry.timeOfDay || 'morning';
-        const timeLabel = timeClass === 'morning' ? '☀️ Утро' : '🌙 Вечер';
-        const entryColor = timeClass === 'morning' ? '#f0c06c' : '#8b6cf0';
+        const timeLabelMap = { morning: emojiHtml('☀️') + ' Утро', evening: emojiHtml('🌙') + ' Вечер', note: emojiHtml('📝') + ' Заметка' };
+        const timeLabel = timeLabelMap[timeClass] || timeClass;
+        const colorMap = { morning: '#f0c06c', evening: '#8b6cf0', note: '#6cf0e0' };
+        const entryColor = colorMap[timeClass] || '#6cf0e0';
+
+        const emotionsHtml = (entry.emotions || []).map(em => {
+            const cat = EMOTIONS[em.category] || {};
+            return `<span class="entry-emotion-tag" style="--cat-color: ${cat.color}; --cat-bg: ${cat.bg}">${em.emotion}</span>`;
+        }).join('');
+
+        const notePreview = entry.timeOfDay === 'note' && entry.notes
+            ? `<div class="entry-card-note-preview">${escapeHtml(entry.notes.substring(0, 100))}${entry.notes.length > 100 ? '...' : ''}</div>`
+            : '';
 
         return `
             <div class="entry-card" data-id="${entry.id}" style="--entry-color: ${entryColor}">
@@ -793,13 +942,9 @@ function renderHistory() {
                     <span class="entry-card-time-badge ${timeClass}">${timeLabel}</span>
                     <span class="entry-card-date">${formatDate(entry.date)}, ${formatTime(entry.date)}</span>
                 </div>
-                <div class="entry-card-emotions">
-                    ${(entry.emotions || []).map(em => {
-            const cat = EMOTIONS[em.category] || {};
-            return `<span class="entry-emotion-tag" style="--cat-color: ${cat.color}; --cat-bg: ${cat.bg}">${em.emotion}</span>`;
-        }).join('')}
-                </div>
+                ${emotionsHtml ? `<div class="entry-card-emotions">${emotionsHtml}</div>` : ''}
                 ${entry.happyText ? `<div class="entry-card-happy">${escapeHtml(entry.happyText)}</div>` : ''}
+                ${notePreview}
             </div>
         `;
     }).join('');
@@ -842,12 +987,14 @@ function renderCalendar() {
         const dayEntries = monthEntries.filter(e => new Date(e.date).getDate() === day);
         const hasMorning = dayEntries.some(e => e.timeOfDay === 'morning');
         const hasEvening = dayEntries.some(e => e.timeOfDay === 'evening');
+        const hasNote = dayEntries.some(e => e.timeOfDay === 'note');
 
         let dots = '';
-        if (hasMorning || hasEvening) {
+        if (hasMorning || hasEvening || hasNote) {
             dots = '<div class="cal-dots">';
             if (hasMorning) dots += '<span class="cal-dot morning"></span>';
             if (hasEvening) dots += '<span class="cal-dot evening"></span>';
+            if (hasNote) dots += '<span class="cal-dot note"></span>';
             dots += '</div>';
         }
 
@@ -866,29 +1013,33 @@ function openModal(entryId) {
     const modal = document.getElementById('entry-modal');
     const body = document.getElementById('modal-body');
     const timeClass = entry.timeOfDay || 'morning';
-    const timeLabel = timeClass === 'morning' ? '☀️ Утренняя запись' : '🌙 Вечерняя запись';
+    const timeLabelMap = { morning: emojiHtml('☀️') + ' Утренняя запись', evening: emojiHtml('🌙') + ' Вечерняя запись', note: emojiHtml('📝') + ' Заметка' };
+    const timeLabel = timeLabelMap[timeClass] || timeClass;
+
+    const emotionsSection = (entry.emotions || []).length > 0 ? `
+        <div class="modal-emotions">
+            ${(entry.emotions || []).map(em => {
+        const cat = EMOTIONS[em.category] || {};
+        return `<span class="entry-emotion-tag" style="--cat-color: ${cat.color}; --cat-bg: ${cat.bg}">${emojiHtml(cat.emoji)} ${em.emotion}</span>`;
+    }).join('')}
+        </div>` : '';
 
     body.innerHTML = `
         <span class="modal-time-badge ${timeClass}">${timeLabel}</span>
         <div class="modal-date">${formatDate(entry.date)}, ${formatTime(entry.date)}</div>
         
-        <div class="modal-emotions">
-            ${(entry.emotions || []).map(em => {
-        const cat = EMOTIONS[em.category] || {};
-        return `<span class="entry-emotion-tag" style="--cat-color: ${cat.color}; --cat-bg: ${cat.bg}">${cat.emoji} ${em.emotion}</span>`;
-    }).join('')}
-        </div>
+        ${emotionsSection}
 
         ${entry.happyText ? `
             <div class="modal-happy">
-                <div class="modal-happy-label">✨ Почему я сегодня счастлив:</div>
+                <div class="modal-happy-label">${emojiHtml('✨')} Почему я сегодня счастлив:</div>
                 <div class="modal-happy-text">${escapeHtml(entry.happyText)}</div>
             </div>
         ` : ''}
 
         ${entry.gratefulText ? `
             <div class="modal-happy" style="border-color: rgba(139,108,240,0.2); background: rgba(139,108,240,0.06)">
-                <div class="modal-happy-label">🙏 За что я благодарен:</div>
+                <div class="modal-happy-label">${emojiHtml('🙏')} За что я благодарен:</div>
                 <div class="modal-happy-text">${escapeHtml(entry.gratefulText)}</div>
             </div>
         ` : ''}
@@ -1071,7 +1222,8 @@ function exportToTxt() {
     sortedEntries.forEach(entry => {
         const dateStr = formatDate(entry.date);
         const timeStr = formatTime(entry.date);
-        const timeLabel = entry.timeOfDay === 'morning' ? '☀️ Утро' : '🌙 Вечер';
+        const timeLabelMap = { morning: '☀️ Утро', evening: '🌙 Вечер', note: '📝 Заметка' };
+        const timeLabel = timeLabelMap[entry.timeOfDay] || entry.timeOfDay;
 
         textContent += `[${dateStr}, ${timeStr}] ${timeLabel}\n`;
 
@@ -1112,6 +1264,125 @@ function exportToTxt() {
     showToast('Записи экспортированы!', 'success');
 }
 
+// ============ ИМПОРТ ============
+
+async function importFromTxt(file) {
+    const text = await file.text();
+    const lines = text.split('\n').map(l => l.replace(/\r$/, ''));
+
+    const entries = [];
+    let current = null;
+    let section = null; // 'happy' | 'grateful' | 'notes' | 'emotions'
+
+    const MONTHS_RU = {
+        'января': 0, 'февраля': 1, 'марта': 2, 'апреля': 3, 'мая': 4, 'июня': 5,
+        'июля': 6, 'августа': 7, 'сентября': 8, 'октября': 9, 'ноября': 10, 'декабря': 11
+    };
+
+    function parseDateLine(line) {
+        // Format: [15 марта 2025, 09:30] ☀️ Утро
+        const m = line.match(/\[(\d+)\s+(\S+)\s+(\d{4}),\s*(\d{2}):(\d{2})\]\s*(.*)/u);
+        if (!m) return null;
+        const [, day, monthStr, year, hh, mm, label] = m;
+        const month = MONTHS_RU[monthStr.toLowerCase()];
+        if (month === undefined) return null;
+        const date = new Date(parseInt(year), month, parseInt(day), parseInt(hh), parseInt(mm));
+        const labelClean = label.replace(/[☀️🌙📝]/gu, '').trim();
+        let timeOfDay = 'morning';
+        if (labelClean.includes('Вечер')) timeOfDay = 'evening';
+        else if (labelClean.includes('Заметка')) timeOfDay = 'note';
+        const dayKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        return { date: date.toISOString(), dayKey, timeOfDay };
+    }
+
+    for (const line of lines) {
+        if (line.startsWith('[') && line.includes(']')) {
+            // Сохраняем предыдущую запись
+            if (current) entries.push(current);
+            const parsed = parseDateLine(line);
+            if (!parsed) continue;
+            current = {
+                id: generateId(),
+                date: parsed.date,
+                dayKey: parsed.dayKey,
+                timeOfDay: parsed.timeOfDay,
+                emotions: [],
+                happyText: '',
+                gratefulText: '',
+                notes: ''
+            };
+            section = null;
+            continue;
+        }
+
+        if (!current) continue;
+
+        if (line.startsWith('Эмоции:')) {
+            section = 'emotions';
+            const emotionNames = line.replace('Эмоции:', '').split(',').map(s => s.trim()).filter(Boolean);
+            // Find category for each emotion name
+            current.emotions = emotionNames.map(name => {
+                for (const [catId, cat] of Object.entries(EMOTIONS)) {
+                    if (cat.subemotions.includes(name)) return { category: catId, emotion: name };
+                }
+                return { category: 'joy', emotion: name };
+            });
+            continue;
+        }
+        if (line.startsWith('Почему я счастлив:')) { section = 'happy'; continue; }
+        if (line.startsWith('За что я благодарен:')) { section = 'grateful'; continue; }
+        if (line.startsWith('Заметки:')) { section = 'notes'; continue; }
+        if (line.startsWith('---------')) {
+            if (current) entries.push(current);
+            current = null;
+            section = null;
+            continue;
+        }
+
+        if (section === 'happy') current.happyText += (current.happyText ? '\n' : '') + line;
+        else if (section === 'grateful') current.gratefulText += (current.gratefulText ? '\n' : '') + line;
+        else if (section === 'notes') current.notes += (current.notes ? '\n' : '') + line;
+    }
+    if (current) entries.push(current);
+
+    if (entries.length === 0) {
+        showToast('Не найдено записей для импорта', 'error');
+        return;
+    }
+
+    // Дедупликация по dayKey + timeOfDay
+    const existingKeys = new Set(state.entries.map(e => `${e.dayKey}-${e.timeOfDay}`));
+    const newEntries = entries.filter(e => !existingKeys.has(`${e.dayKey}-${e.timeOfDay}`));
+
+    if (newEntries.length === 0) {
+        showToast('Все записи уже существуют', 'error');
+        return;
+    }
+
+    // Отправка на сервер
+    let saved = 0;
+    for (const entry of newEntries) {
+        try {
+            const res = await fetch(API_URL, {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify(entry)
+            });
+            if (res.ok) {
+                state.entries.push(entry);
+                saved++;
+            }
+        } catch (e) { /* skip */ }
+    }
+
+    state.entries.sort((a, b) => new Date(b.date) - new Date(a.date));
+    renderHistory();
+    renderCalendar();
+    updateTodayStatus();
+
+    showToast(`✅ Импортировано ${saved} из ${entries.length} записей!`, 'success');
+}
+
 async function startApp() {
     await loadEntries();
     renderGreeting();
@@ -1134,9 +1405,32 @@ function initAuth() {
         if (e.key === 'Enter') document.getElementById('auth-password').focus();
     });
 
+    // Показать/скрыть пароль
+    const toggleBtn = document.getElementById('password-toggle');
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            const input = document.getElementById('auth-password');
+            const eyeIcon = document.getElementById('eye-icon');
+            const eyeOffIcon = document.getElementById('eye-off-icon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                eyeIcon.style.display = 'none';
+                eyeOffIcon.style.display = 'block';
+            } else {
+                input.type = 'password';
+                eyeIcon.style.display = 'block';
+                eyeOffIcon.style.display = 'none';
+            }
+        });
+    }
+
     // Профиль
     document.getElementById('nav-profile').addEventListener('click', toggleProfilePopup);
-    document.getElementById('profile-logout').addEventListener('click', logout);
+    document.getElementById('profile-logout').addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        logout();
+    });
 }
 
 async function init() {
@@ -1146,19 +1440,41 @@ async function init() {
     const exportBtn = document.getElementById('history-export');
     if (exportBtn) exportBtn.addEventListener('click', exportToTxt);
 
+    // Импорт
+    const importBtn = document.getElementById('history-import');
+    const importFileInput = document.getElementById('import-file-input');
+    if (importBtn && importFileInput) {
+        importBtn.addEventListener('click', () => importFileInput.click());
+        importFileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            await importFromTxt(file);
+            importFileInput.value = ''; // сбросить для повторного импорта
+        });
+    }
+
     // Навигация (только кнопки с data-screen, не профиль)
     document.querySelectorAll('.nav-btn[data-screen]').forEach(btn => {
         btn.addEventListener('click', () => switchScreen(btn.dataset.screen));
     });
 
-    // Утро / Вечер
+    // Утро / Вечер / Заметка
     document.querySelectorAll('.time-btn').forEach(btn => {
         btn.addEventListener('click', () => switchTimeOfDay(btn.dataset.time));
     });
 
+    // Датапикер
+    const entryDate = document.getElementById('entry-date');
+    if (entryDate) {
+        entryDate.value = todayKey();
+        entryDate.max = todayKey();
+        entryDate.addEventListener('change', updateTodayStatus);
+    }
+
     // Текстовые поля
     document.getElementById('happy-text').addEventListener('input', updateSaveBtn);
     document.getElementById('grateful-text').addEventListener('input', updateSaveBtn);
+    document.getElementById('notes-text').addEventListener('input', updateSaveBtn);
     document.getElementById('refresh-prompts').addEventListener('click', renderHappyPrompts);
     document.getElementById('refresh-grateful-prompts').addEventListener('click', renderGratefulPrompts);
     document.getElementById('save-entry').addEventListener('click', saveEntry);
@@ -1192,6 +1508,19 @@ async function init() {
         document.getElementById('auth-screen').style.display = 'none';
         document.getElementById('app').style.display = 'block';
         await startApp();
+    }
+
+    parseEmojis();
+}
+
+// ============ TWEMOJI (парсинг статичного HTML) ============
+
+function parseEmojis() {
+    if (typeof twemoji !== 'undefined') {
+        twemoji.parse(document.body, {
+            folder: 'svg',
+            ext: '.svg'
+        });
     }
 }
 
