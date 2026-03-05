@@ -842,7 +842,8 @@ async function saveEntry() {
     if (btn.disabled) return;
 
     btn.disabled = true;
-    btn.textContent = 'Сохраняю...';
+    const saveBtnText = document.getElementById('save-btn-text');
+    saveBtnText.textContent = 'Сохраняю...';
 
     const happyText = state.timeOfDay === 'morning'
         ? document.getElementById('happy-text').value.trim()
@@ -904,9 +905,13 @@ async function saveEntry() {
         showToast('Ошибка сохранения. Попробуйте ещё раз.', 'error');
         btn.disabled = false;
         const saveBtnText = document.getElementById('save-btn-text');
-        saveBtnText.textContent = state.timeOfDay === 'morning'
-            ? 'Сохранить утреннюю запись'
-            : 'Сохранить вечернюю запись';
+        if (state.timeOfDay === 'note') {
+            saveBtnText.textContent = 'Сохранить заметку';
+        } else if (state.timeOfDay === 'morning') {
+            saveBtnText.textContent = 'Сохранить утреннюю запись';
+        } else {
+            saveBtnText.textContent = 'Сохранить вечернюю запись';
+        }
     }
 }
 

@@ -1122,7 +1122,7 @@ img.emoji {
     background: linear-gradient(135deg, var(--color-success), var(--color-sadness));
     border: none;
     border-radius: var(--radius-md);
-    color: #0f0f13;
+    color: #ffffff;
     font-family: var(--font-family);
     font-size: 1.05rem;
     font-weight: 700;
