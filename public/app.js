@@ -899,6 +899,13 @@ async function saveEntry() {
         // Если утро записано, переключить на вечер
         if (state.timeOfDay === 'morning') {
             switchTimeOfDay('evening');
+        } else {
+            const saveBtnText = document.getElementById('save-btn-text');
+            if (state.timeOfDay === 'note') {
+                saveBtnText.textContent = 'Сохранить заметку';
+            } else {
+                saveBtnText.textContent = 'Сохранить вечернюю запись';
+            }
         }
     } catch (err) {
         console.error('Save error:', err);
