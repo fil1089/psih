@@ -8,7 +8,11 @@
 
 function emojiHtml(str) {
     if (typeof twemoji !== 'undefined') {
-        return twemoji.parse(str, { folder: 'svg', ext: '.svg' });
+        return twemoji.parse(str, {
+            folder: 'svg',
+            ext: '.svg',
+            base: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/'
+        });
     }
     return str;
 }
@@ -1519,7 +1523,8 @@ function parseEmojis() {
     if (typeof twemoji !== 'undefined') {
         twemoji.parse(document.body, {
             folder: 'svg',
-            ext: '.svg'
+            ext: '.svg',
+            base: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/'
         });
     }
 }
